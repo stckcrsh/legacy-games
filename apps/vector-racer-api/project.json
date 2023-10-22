@@ -1,0 +1,64 @@
+{
+  "name": "vector-racer-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/vector-racer-api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/vector-racer-api",
+        "main": "apps/vector-racer-api/src/main.ts",
+        "tsConfig": "apps/vector-racer-api/tsconfig.app.json",
+        "assets": ["apps/vector-racer-api/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/vector-racer-api/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "vector-racer-api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "vector-racer-api:build:development"
+        },
+        "production": {
+          "buildTarget": "vector-racer-api:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/vector-racer-api/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/vector-racer-api/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

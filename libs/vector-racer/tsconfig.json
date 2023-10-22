@@ -3,7 +3,6 @@
     "jsx": "react-jsx",
     "allowJs": false,
     "esModuleInterop": false,
-    "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "strict": true
   },
@@ -11,7 +10,7 @@
   "include": [],
   "references": [
     {
-      "path": "./tsconfig.app.json"
+      "path": "./tsconfig.lib.json"
     },
     {
       "path": "./tsconfig.spec.json"

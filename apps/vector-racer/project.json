@@ -56,7 +56,8 @@
       },
       "configurations": {
         "development": {
-          "buildTarget": "vector-racer:build:development"
+          "buildTarget": "vector-racer:build:development",
+          "proxyConfig": "apps/vector-racer/proxy.conf.json"
         },
         "production": {
           "buildTarget": "vector-racer:build:production",
