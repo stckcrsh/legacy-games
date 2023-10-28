@@ -1,23 +1,21 @@
-import { from, map, merge, Observable, scan, shareReplay, Subject, tap } from 'rxjs';
+import {
+  from,
+  map,
+  merge,
+  Observable,
+  scan,
+  shareReplay,
+  Subject,
+  tap,
+} from 'rxjs';
 import Vector from 'victor';
 
 import gameService from './game.service';
-import { Racer } from './racer';
+import { GameState } from '@vector-racer/lib';
 
 interface PotentialMove {
   racerId: string;
   cursor: Vector;
-}
-
-export interface GameState {
-  racers: Record<string, Racer>;
-  map: {
-    paths: Array<Array<[number, number]>>;
-    start: {
-      line: Array<[number, number]>;
-      direction: [number, number];
-    };
-  };
 }
 
 // create logging operator for observable
@@ -38,7 +36,10 @@ export class GameBLoc {
     const commands$ = merge(
       this.fetchGameState().pipe(map((state) => ({ type: 'init', state }))),
       this._move$.pipe(map((move) => ({ type: 'move', move }))),
-      resolvedMove$.pipe(log('resolved'), map((state) => ({ type: 'resolvedMove', state })))
+      resolvedMove$.pipe(
+        log('resolved'),
+        map((state) => ({ type: 'resolvedMove', state }))
+      )
     );
 
     // setupeventsource
@@ -53,7 +54,10 @@ export class GameBLoc {
         }
         return state;
       }, {} as GameState),
-      tap((state) => console.log('updatestate', state)),
+      tap({
+        next:(state) => console.log('updatestate', state),
+        error:(err) => console.log('error', err)
+      }),
       shareReplay(1)
     );
 
@@ -63,7 +67,7 @@ export class GameBLoc {
         case 'move':
           // @ts-ignore
           this.resolveMove(action.move).subscribe({
-            next:(res) =>resolvedMove$.next(res)
+            next: (res) => resolvedMove$.next(res),
           });
           break;
       }
@@ -81,15 +85,14 @@ export class GameBLoc {
   }
 
   private resolveMove(move: PotentialMove): Observable<GameState> {
-    return from(
-      gameService.move(this.gameId, move)
-    );
+    return from(gameService.move(this.gameId, move));
   }
 
   private fetchGameState(): Observable<GameState> {
     return from(
       gameService.getGame(this.gameId).then((game) => {
-        return game.state;
+        console.log('game', game)
+        return game;
       })
     );
   }

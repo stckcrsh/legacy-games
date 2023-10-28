@@ -6,7 +6,6 @@ export interface Racer {
   moves: [number, number][];
   position: Vector;
   vector: Vector;
-  possibleVectors?: [Vector, Vector][];
   laps:number;
 }
 

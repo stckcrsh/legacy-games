@@ -1,18 +1,11 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
-import { CreateGameRuntimeDto } from './models';
-import { GameRuntimeService } from './game-runtime.service';
-import { AuthGuard } from '../auth/auth.guard';
-import { AuthUser } from '../auth/auth.decorators';
-import { User } from '../users/user';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { GameState } from '@vector-racer/lib';
+
+import { AuthUser } from '../auth/auth.decorators';
+import { AuthGuard } from '../auth/auth.guard';
+import { User } from '../users/user';
+import { GameRuntimeService } from './game-runtime.service';
+import { CreateGameRuntimeDto } from './models';
 
 @Controller('game-runtime')
 @UseGuards(AuthGuard)
@@ -29,13 +22,15 @@ export class GameRuntimeController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @AuthUser() user: User):GameState {
-    console.log(user)
-    return this.gameRuntimeService.findOne(id) as unknown as GameState;
+  findOne(@Param('id') id: string): GameState {
+    return this.gameRuntimeService.findOne(id).toGameState();
   }
 
   @Post(':id/move')
-  move(@Param('id') id: string, @Body() move: any, @AuthUser() user: User) {
-    return this.gameRuntimeService.move(id, move, user.userId);
+  move(
+    @Param('id') id: string,
+    @Body() move: any,
+  ): GameState {
+    return this.gameRuntimeService.move(id, move, move.racerId).toGameState();
   }
 }

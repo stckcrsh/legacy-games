@@ -31,11 +31,14 @@ export interface Racer {
   vector: [number, number];
   possibleVectors?: [number, number][];
   laps: number;
-  lateralScale?: number;
-  forwardScale?: number;
-  backwardScale?: number;
-  deck?: any[];
-  hand?: any[];
+  lateralScale: number;
+  forwardScale: number;
+  backwardScale: number;
+  lateralSteps: number;
+  forwardSteps: number;
+  backwardSteps: number;
+  deck: any[];
+  hand: [string, string][];
 }
 
 export interface PotentialMove {

@@ -7,15 +7,31 @@ import Vector from 'victor';
 // l = left
 // r = right
 // this way moving diagonal is just a combination of two letters
-export const VECTOR_GRID: Array<[Vector, string]> = [
-  [new Vector(0, 1), 'b'],
-  [new Vector(0, -1), 'f'],
-  [new Vector(1, 0), 'r'],
-  [new Vector(-1, 0), 'l'],
-  [new Vector(1, 1), 'rb'],
-  [new Vector(1, -1), 'rf'],
-  [new Vector(-1, 1), 'lb'],
-  [new Vector(-1, -1), 'lf'],
+export const VECTOR_GRID: Array<[Vector, string, number]> = [
+  [new Vector(0, 1), 'b', 1],
+  [new Vector(0, -1), 'f', 1],
+  [new Vector(1, 0), 'l', 1],
+  [new Vector(-1, 0), 'l', 1],
+  [new Vector(1, 1), 'lb', 1],
+  [new Vector(1, -1), 'lf', 1],
+  [new Vector(-1, 1), 'lb', 1],
+  [new Vector(-1, -1), 'lf', 1],
+  [new Vector(2,0), 'l', 2],
+  [new Vector(-2, 0), 'l', 2],
+  [new Vector(0, 2), 'b', 2],
+  [new Vector(0, -2), 'f', 2],
+  [new Vector(1, 2), 'b', 3],
+  [new Vector(1, -2), 'f', 3],
+  [new Vector(-1, 2), 'b', 3],
+  [new Vector(-1, -2), 'f', 3],
+  [new Vector(3, 0), 'l', 3],
+  [new Vector(-3, 0), 'l', 3],
+  [new Vector(0, 3), 'b', 3],
+  [new Vector(0, -3), 'f', 3],
+  [new Vector(2, -1), 'l', 3],
+  [new Vector(2, 1), 'l', 3],
+  [new Vector(-2, -1), 'l', 3],
+  [new Vector(-2, 1), 'l', 3],
 ];
 
 export const NEIGHBORS: Vector[] = [

@@ -1,17 +1,14 @@
 import Victor from 'victor';
-import { PotentialMove, Racer } from './models';
+import { PotentialMove } from './models';
 import {
+  GameState,
   angleOfVectorsRadians,
   doIntersect,
   getVelocity,
 } from '@vector-racer/lib';
 import { VectorService } from './vector.service';
 import { Map } from './map.utils';
-
-interface GameState {
-  racers: Record<string, Racer>;
-  map: Map;
-}
+import { Racer } from './racer';
 
 /**
  * TODO: need to validate input vector
@@ -24,31 +21,33 @@ export class Game {
   racers: Record<string, Racer>;
   map: Map;
 
+  //
   constructor(_state: GameState) {
-    this.racers = _state.racers;
+    this.racers = Object.fromEntries(
+      Object.entries(_state.racers).map(([id, racer]): [string, Racer] => [
+        id,
+        Racer.fromRacer(racer),
+      ])
+    );
+
+    this.map = _state.map as unknown as Map;
   }
 
-  resolveMove(move: PotentialMove): GameState {
+  resolveMoves(moves: PotentialMove[]) {
+    moves.forEach((move) => this.resolveMove(move));
+  }
+
+  resolveMove(move: PotentialMove) {
     const racer = this.racers[move.racerId];
     const newRacer = this.resolvePlayerMove(move, racer);
 
-    this.racers = {
-      ...this.racers,
-      [racer.id]: {
-        ...newRacer,
-        possibleVectors: VectorService.createPossibleVectors(newRacer),
-      },
-    };
-
-    return {
-      racers: this.racers,
-      map: this.map,
-    };
+    this.racers[racer.id] = newRacer;
+    // possibleVectors: VectorService.createPossibleVectors(newRacer)
   }
 
   resolvePlayerMove(move: PotentialMove, racer: Racer): Racer {
     const prevPosition = racer.position;
-    racer.moves.push([prevPosition.x, prevPosition.y]);
+    racer.moves.push(prevPosition.clone());
     racer.position = move.cursor.clone();
 
     const velocity = getVelocity(prevPosition, move.cursor);
@@ -128,9 +127,22 @@ export class Game {
       }
     }
 
+    console.log(move)
+    const newHand = racer.hand.filter(
+      (card) => card[0] !== move?.cards?.find((c) => c[0] === card[0])[0]
+    );
+
+    racer.hand = newHand;
+
+    return racer;
+  }
+
+  public toGameState(): GameState {
     return {
-      ...racer,
-      possibleVectors: VectorService.createPossibleVectors(racer),
+      racers: Object.fromEntries(
+        Object.entries(this.racers).map(([id, racer]) => [id, racer.toRacer()])
+      ),
+      map: this.map,
     };
   }
 }

@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { Game } from './game';
 import Victor from 'victor';
-import * as maps from './maps.json';
-import { Racer } from './models';
-import { VectorService } from './vector.service';
+
+import { Injectable } from '@nestjs/common';
+import { Racer, accelerate, betterWheels, lateralPlus } from '@vector-racer/lib';
+
+import { Game } from './game';
 import { Map, scaleMap } from './map.utils';
+import * as maps from './maps.json';
 
 const map = scaleMap(maps.basic as unknown as Map, 1.65);
 
@@ -12,15 +13,23 @@ const racer: Racer = {
   id: '1',
   name: 'player1',
   moves: [],
-  position: Victor.fromArray(map.start.positions[0]),
-  vector: Victor.fromArray(map.start.positions[0]),
+  position: map.start.positions[0],
+  vector: map.start.positions[0],
   backwardScale: 1,
   forwardScale: 1,
   lateralScale: 1,
+  lateralSteps:1,
+  forwardSteps:1,
+  backwardSteps:1,
   laps: -1,
+  deck: [],
+  hand: [
+    ['1', lateralPlus.id],
+    ['2', accelerate.id],
+    ['3', betterWheels.id],
+    ['4', betterWheels.id],
+  ],
 };
-
-racer.possibleVectors = VectorService.createPossibleVectors(racer);
 
 const gameDB: Record<string, Game> = {
   '1': new Game({
@@ -40,10 +49,17 @@ export class GameRuntimeService {
           id: '1',
           name: 'player1',
           moves: [],
-          position: new Victor(2, 2),
-          vector: new Victor(2, 2),
-
+          position: [2, 2],
+          vector: [2, 2],
           laps: -1,
+          backwardScale: 1,
+          forwardScale: 1,
+          lateralScale: 1,
+          lateralSteps: 1,
+          forwardSteps: 1,
+          backwardSteps: 1,
+          deck: [],
+          hand: [],
         },
       },
       map: maps.small as any,
@@ -64,12 +80,11 @@ export class GameRuntimeService {
 
   move(id: string, move: any, userId: string) {
     const game = gameDB[id];
-    const newGameState = game.resolveMove({
+    game.resolveMove({
       racerId: userId,
       cursor: Victor.fromObject(move.cursor),
     });
 
-    gameDB[id] = new Game(newGameState);
-    return newGameState;
+    return game;
   }
 }

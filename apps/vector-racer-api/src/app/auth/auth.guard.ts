@@ -19,6 +19,8 @@ export class AuthGuard implements CanActivate {
     const user = request.cookies['user'];
     const token = request.cookies['token'];
 
+    console.log(user, token)
+
     const result = this.authService.signInToken(user, token);
     if (result) {
       request['user'] = result;
