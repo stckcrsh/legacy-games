@@ -1,11 +1,11 @@
 import { memo, useEffect, useMemo, useState } from 'react';
 import Vector from 'victor';
 
-import { Racer, cardLookup } from '@vector-racer/lib';
+import { cardLookup, RacerDto } from '@vector-racer/lib';
 
 import { GameBLoc } from './game.bloc';
-import { generatePath } from './svg.utils';
 import { Player, PlayerBLoc } from './player.bloc';
+import { generatePath } from './svg.utils';
 
 export const NewPlayer = memo(
   ({
@@ -13,7 +13,7 @@ export const NewPlayer = memo(
     gridSize,
     bloc,
   }: {
-    racer: Racer;
+    racer: RacerDto;
     gridSize: number;
     bloc: GameBLoc;
   }) => {
@@ -43,7 +43,7 @@ export const NewPlayer = memo(
           return acc;
         }, [] as any);
       //@ts-ignore
-      bloc.move({ racerId: racer.id, cursor: vector, cards: playedCardsa });
+      bloc.move({ racerId: racer.id, cursor: vector, cards: playedCards });
     };
 
     return (
@@ -99,6 +99,16 @@ export const NewPlayer = memo(
             </text>
           );
         })}
+
+        <text
+          x={30 * gridSize}
+          y={(45) * gridSize}
+          fill={ 'black'}
+          fontSize={30}
+        >
+          {state?.racer?.discard?.length}
+        </text>
+
       </>
     );
   }

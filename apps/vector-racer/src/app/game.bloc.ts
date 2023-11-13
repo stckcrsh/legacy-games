@@ -1,21 +1,14 @@
-import {
-  from,
-  map,
-  merge,
-  Observable,
-  scan,
-  shareReplay,
-  Subject,
-  tap,
-} from 'rxjs';
+import { from, map, merge, Observable, scan, shareReplay, Subject, tap } from 'rxjs';
 import Vector from 'victor';
 
-import gameService from './game.service';
-import { GameState } from '@vector-racer/lib';
+import { GameStateDto, RacerActionDto } from '@vector-racer/lib';
 
-interface PotentialMove {
+import gameService from './game.service';
+
+interface RacerAction {
   racerId: string;
   cursor: Vector;
+  cards?: Array<[string, string]>;
 }
 
 // create logging operator for observable
@@ -26,11 +19,11 @@ const log =
   };
 
 export class GameBLoc {
-  private _state$: Observable<GameState>;
-  private _move$ = new Subject<PotentialMove>();
+  private _state$: Observable<GameStateDto>;
+  private _move$ = new Subject<RacerAction>();
 
   constructor(private gameId: string) {
-    const resolvedMove$ = new Subject<GameState>();
+    const resolvedMove$ = new Subject<GameStateDto>();
 
     // commands
     const commands$ = merge(
@@ -53,10 +46,10 @@ export class GameBLoc {
             return action.state;
         }
         return state;
-      }, {} as GameState),
+      }, {} as GameStateDto),
       tap({
-        next:(state) => console.log('updatestate', state),
-        error:(err) => console.log('error', err)
+        next: (state) => console.log('updatestate', state),
+        error: (err) => console.log('error', err),
       }),
       shareReplay(1)
     );
@@ -76,7 +69,7 @@ export class GameBLoc {
     // this.state$.subscribe((res) => console.log('state', res));
   }
 
-  move(move: PotentialMove) {
+  move(move: RacerAction) {
     this._move$.next(move);
   }
 
@@ -84,14 +77,20 @@ export class GameBLoc {
     return this._state$;
   }
 
-  private resolveMove(move: PotentialMove): Observable<GameState> {
-    return from(gameService.move(this.gameId, move));
+  private resolveMove(move: RacerAction): Observable<GameStateDto> {
+    const action: RacerActionDto = {
+      cursor: move.cursor.toArray() as [number, number],
+      racerId: move.racerId,
+      cards: move.cards,
+    };
+
+    return from(gameService.move(this.gameId, action));
   }
 
-  private fetchGameState(): Observable<GameState> {
+  private fetchGameState(): Observable<GameStateDto> {
     return from(
       gameService.getGame(this.gameId).then((game) => {
-        console.log('game', game)
+        console.log('game', game);
         return game;
       })
     );

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
+
+import { GameStateDto, RacerDto } from '@vector-racer/lib';
 
 import { GameBLoc } from './game.bloc';
 import { NewPlayer } from './newplayer.component';
 import { generatePathStr } from './svg.utils';
-import { useParams } from 'react-router-dom';
-import { GameState, Racer } from '@vector-racer/lib';
 
 const cols = 40;
 const rows = 40;
@@ -55,7 +56,7 @@ const Track = ({ map }: { map: any }) => {
 };
 
 export const Game = ({ game }: { game: GameBLoc }) => {
-  const [state, setState] = useState<GameState | null>(null);
+  const [state, setState] = useState<GameStateDto | null>(null);
 
   useEffect(() => {
     const sub = game.state$.subscribe({
@@ -113,7 +114,7 @@ export const Game = ({ game }: { game: GameBLoc }) => {
         {Object.values(state.racers).map((racer) => (
           <NewPlayer
             key={racer.id}
-            racer={racer as Racer}
+            racer={racer as RacerDto}
             bloc={game}
             gridSize={gridSize}
           />

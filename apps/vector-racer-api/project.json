@@ -14,7 +14,13 @@
         "outputPath": "dist/apps/vector-racer-api",
         "main": "apps/vector-racer-api/src/main.ts",
         "tsConfig": "apps/vector-racer-api/tsconfig.app.json",
-        "assets": ["apps/vector-racer-api/src/assets"],
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "dist/apps/vector-racer-workflows",
+            "output": "workflows"
+          }
+        ],
         "isolatedConfig": true,
         "webpackConfig": "apps/vector-racer-api/webpack.config.js"
       },
@@ -23,7 +29,28 @@
         "production": {}
       }
     },
+    "build-workflows": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/vector-racer-workflows",
+        "main": "apps/vector-racer-api/src/workflows/index.ts",
+        "tsConfig": "apps/vector-racer-api/tsconfig.workflows.json",
+        "assets": [],
+        "outputFileName": "index.js",
+        "additionalEntryPoints": [],
+        "webpackConfig": "apps/vector-racer-api/webpack.config.js"
+      }
+    },
     "serve": {
+      "dependsOn": [
+        {
+          "projects": "self",
+          "target": "build-workflows"
+        }
+      ],
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {

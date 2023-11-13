@@ -1,0 +1,79 @@
+{
+  "name": "vector-racer-worker",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/vector-racer-worker/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/vector-racer-worker",
+        "format": ["cjs"],
+        "bundle": true,
+        "main": "apps/vector-racer-worker/src/main.ts",
+        "tsConfig": "apps/vector-racer-worker/tsconfig.app.json",
+        "assets": ["apps/vector-racer-worker/src/assets"],
+        "generatePackageJson": true,
+        "additionalEntryPoints": ["apps/vector-racer-worker/src/workflows.ts"],
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "vector-racer-worker:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "vector-racer-worker:build:development",
+          "watch": false
+        },
+        "production": {
+          "buildTarget": "vector-racer-worker:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/vector-racer-worker/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/vector-racer-worker/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

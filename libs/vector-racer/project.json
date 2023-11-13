@@ -1,5 +1,5 @@
 {
-  "name": "components",
+  "name": "lib-vector-racer",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/vector-racer/src",
   "projectType": "library",

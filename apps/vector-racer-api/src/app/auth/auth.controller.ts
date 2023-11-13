@@ -1,18 +1,9 @@
-import {
-  Body,
-  Controller,
-  Post,
-  HttpCode,
-  HttpStatus,
-  Res,
-  Req,
-  Get,
-  UseGuards,
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthGuard } from './auth.guard';
-import { AuthUser } from './auth.decorators';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
+
 import { User } from '../users/user';
+import { AuthUser } from './auth.decorators';
+import { AuthGuard } from './auth.guard';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
@@ -29,7 +20,6 @@ export class AuthController {
       signInDto.password
     );
 
-    console.log(result);
     // @ts-ignore
     response.cookie('user', result.username);
     // @ts-ignore

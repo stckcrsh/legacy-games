@@ -1,43 +1,76 @@
-import Victor from 'victor';
-import { PotentialMove } from './models';
+import { values } from 'lodash';
+import Vector from 'victor';
+
 import {
-  GameState,
-  angleOfVectorsRadians,
-  doIntersect,
-  getVelocity,
+    angleOfVectorsRadians, Chassis, doIntersect, GameStateDto, getVelocity, nascar, Part
 } from '@vector-racer/lib';
-import { VectorService } from './vector.service';
+
 import { Map } from './map.utils';
+import { Action } from './models';
 import { Racer } from './racer';
+import { shuffle } from './stack';
+
+const getDeckId = (card: [string, string]) => card[0];
+
+interface NewRacer {
+  chassis: Chassis;
+  parts: Part[];
+  id: string;
+  name: string;
+}
 
 /**
  * TODO: need to validate input vector
  */
 export class Game {
-  static fromGameState(state: GameState) {
-    return new Game(state);
+  static newGame(racers: Record<string, NewRacer>, map: Map) {
+    const game = new Game();
+    game.racers = Object.fromEntries(
+      Object.entries(racers).map(([id, racer]) => {
+        return [id, Racer.newRacer(nascar, {}, racer.id, racer.name)];
+      })
+    );
+    game.map = map;
+    game.start();
+    return game;
   }
 
-  racers: Record<string, Racer>;
-  map: Map;
+  static fromGameState(state: GameStateDto) {
+    const game = new Game();
 
-  //
-  constructor(_state: GameState) {
-    this.racers = Object.fromEntries(
-      Object.entries(_state.racers).map(([id, racer]): [string, Racer] => [
+    game.racers = Object.fromEntries(
+      Object.entries(state.racers).map(([id, racer]): [string, Racer] => [
         id,
         Racer.fromRacer(racer),
       ])
     );
 
-    this.map = _state.map as unknown as Map;
+    game.map = state.map as unknown as Map;
   }
 
-  resolveMoves(moves: PotentialMove[]) {
-    moves.forEach((move) => this.resolveMove(move));
+  racers: Record<string, Racer>;
+  map: Map;
+  isGameOver = false;
+
+  start() {
+    values(this.racers).forEach((racer) => {
+      racer.position = Vector.fromArray(this.map.start.positions[0]);
+      racer.vector = Vector.fromArray(this.map.start.positions[0]);
+      racer.facing = Vector.fromArray(this.map.start.direction);
+      racer.laps = 0;
+
+      racer.deck = shuffle(racer.deck);
+      for (let i = 0; i < racer.handSize; i++) {
+        racer.draw();
+      }
+    });
   }
 
-  resolveMove(move: PotentialMove) {
+  resolveActions(moves: Action[]) {
+    moves.forEach((move) => this.resolveAction(move));
+  }
+
+  resolveAction(move: Action) {
     const racer = this.racers[move.racerId];
     const newRacer = this.resolvePlayerMove(move, racer);
 
@@ -45,7 +78,7 @@ export class Game {
     // possibleVectors: VectorService.createPossibleVectors(newRacer)
   }
 
-  resolvePlayerMove(move: PotentialMove, racer: Racer): Racer {
+  resolvePlayerMove(move: Action, racer: Racer): Racer {
     const prevPosition = racer.position;
     racer.moves.push(prevPosition.clone());
     racer.position = move.cursor.clone();
@@ -61,8 +94,8 @@ export class Game {
         const curr = path[i + 1];
         if (
           doIntersect(
-            Victor.fromArray(prev),
-            Victor.fromArray(curr),
+            Vector.fromArray(prev),
+            Vector.fromArray(curr),
             prevPosition.clone(),
             racer.position.clone()
           )
@@ -89,60 +122,60 @@ export class Game {
      */
     const startLine = this.map.start.line;
 
-    const isOnStartLineLine = (vec: Victor) => {
+    const isOnStartLineLine = (vec: Vector) => {
       const result =
         Math.abs(
           angleOfVectorsRadians(
-            vec.clone().subtract(Victor.fromArray(startLine[0])).normalize(),
-            vec.clone().subtract(Victor.fromArray(startLine[1])).normalize()
+            vec.clone().subtract(Vector.fromArray(startLine[0])).normalize(),
+            vec.clone().subtract(Vector.fromArray(startLine[1])).normalize()
           )
         ) === Math.PI;
       return result;
     };
 
     const crossedFinishLine = doIntersect(
-      Victor.fromArray(startLine[0]),
-      Victor.fromArray(startLine[1]),
+      Vector.fromArray(startLine[0]),
+      Vector.fromArray(startLine[1]),
       prevPosition.clone(),
       racer.position.clone()
     );
-    console.log('crossedFinishLine', crossedFinishLine);
+    // console.log('crossedFinishLine', crossedFinishLine);
 
     if (crossedFinishLine) {
       if (!isOnStartLineLine(prevPosition)) {
         if (isOnStartLineLine(racer.position)) {
           const angleToExpectedTravel = angleOfVectorsRadians(
             velocity.normalize(),
-            Victor.fromArray(this.map.start.direction).normalize()
+            Vector.fromArray(this.map.start.direction).normalize()
           );
-          console.log('cross:', angleToExpectedTravel);
+          // console.log('cross:', angleToExpectedTravel);
           if (Math.abs(angleToExpectedTravel) < Math.PI / 2) {
-            console.log('crossed forward');
+            // console.log('crossed forward');
             racer.laps++;
           } else if (Math.abs(angleToExpectedTravel) > Math.PI / 2) {
-            console.log('crossed backward');
+            // console.log('crossed backward');
             racer.laps--;
           }
         }
       }
     }
 
-    console.log(move)
-    const newHand = racer.hand.filter(
-      (card) => card[0] !== move?.cards?.find((c) => c[0] === card[0])[0]
-    );
+    move.cards?.forEach(([deckId]) => racer.playCard(deckId));
 
-    racer.hand = newHand;
+    for (let i = racer.hand.length; i < racer.handSize; i++) {
+      racer.draw();
+    }
 
     return racer;
   }
 
-  public toGameState(): GameState {
+  public toGameState(): GameStateDto {
     return {
       racers: Object.fromEntries(
         Object.entries(this.racers).map(([id, racer]) => [id, racer.toRacer()])
       ),
       map: this.map,
+      isGameOver: this.isGameOver
     };
   }
 }

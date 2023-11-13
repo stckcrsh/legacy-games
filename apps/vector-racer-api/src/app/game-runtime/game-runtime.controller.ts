@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { GameState } from '@vector-racer/lib';
+import { GameStateDto, Part } from '@vector-racer/lib';
 
 import { AuthUser } from '../auth/auth.decorators';
 import { AuthGuard } from '../auth/auth.guard';
@@ -22,15 +22,17 @@ export class GameRuntimeController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): GameState {
+  findOne(@Param('id') id: string): GameStateDto {
     return this.gameRuntimeService.findOne(id).toGameState();
   }
 
   @Post(':id/move')
-  move(
-    @Param('id') id: string,
-    @Body() move: any,
-  ): GameState {
+  move(@Param('id') id: string, @Body() move: any): GameStateDto {
     return this.gameRuntimeService.move(id, move, move.racerId).toGameState();
+  }
+
+  @Post(':id/join')
+  join(@Param('id') id: string, @AuthUser() user: User, @Body() parts: Part[]) {
+    return this.gameRuntimeService.join(id, user.userId, parts).toGameState();
   }
 }

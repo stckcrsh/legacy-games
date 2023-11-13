@@ -1,3 +1,5 @@
+import { InventoryDto, RacerActionDto } from '@vector-racer/lib';
+
 class GameService {
   signin(username: string, password: string) {
     return fetch('api/auth/login', {
@@ -11,21 +13,29 @@ class GameService {
       }),
     });
   }
+  createGame() {
+    return fetch('api/game-runtime', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
   getAuthUser() {
     return fetch('api/auth', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     });
   }
 
   getGame(id: string) {
-    return fetch(`api/game-runtime/${id}`)
-      .then((res) => res.json())
+    return fetch(`api/game-runtime/${id}`).then((res) => res.json());
   }
 
-  move(id: string, move: any) {
+  move(id: string, move: RacerActionDto) {
     return fetch(`api/game-runtime/${id}/move`, {
       method: 'POST',
       body: JSON.stringify({
@@ -34,8 +44,15 @@ class GameService {
       headers: {
         'Content-Type': 'application/json',
       },
-    })
-      .then((res) => res.json());
+    }).then((res) => res.json());
+  }
+  getInventory(): Promise<InventoryDto> {
+    return fetch('api/player/inventory', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => res.json());
   }
 }
 

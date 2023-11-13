@@ -1,24 +1,26 @@
+import { v4 } from 'uuid';
+
 import { Injectable } from '@nestjs/common';
+
 import { User } from './user';
 
 @Injectable()
 export class UsersService {
-  private readonly users = [
+  private readonly users: User[] = [
     {
-      userId: "1",
+      userId: '1',
       username: 'john',
       password: 'changeme',
-      token: 'sometoken'
-    },
-    {
-      userId: "2",
-      username: 'maria',
-      password: 'guess',
-      token: null
+      token: 'sometoken',
+      inventory: [
+        [v4(), 'slicks'],
+        [v4(), 'drum'],
+        [v4(), 'v8'],
+      ],
     },
   ];
 
   async findOne(username: string): Promise<User | undefined> {
-    return this.users.find(user => user.username === username);
+    return this.users.find((user) => user.username === username);
   }
 }

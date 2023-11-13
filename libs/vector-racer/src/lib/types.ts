@@ -1,10 +1,7 @@
-
-export interface CreateGameRuntimeDto {
-  things: string;
-}
-
-export interface GameState {
-  racers: Record<string, Racer>;
+type PartId = string;
+export interface GameStateDto {
+  isGameOver: boolean;
+  racers: Record<string, RacerDto>;
   map: {
     paths: Array<Array<[number, number]>>;
     start: {
@@ -14,7 +11,7 @@ export interface GameState {
   };
 }
 
-export interface NPCRacer {
+export interface NPCRacerDto {
   id: string;
   name: string;
   moves: [number, number][];
@@ -23,7 +20,7 @@ export interface NPCRacer {
   laps: number;
 }
 
-export interface Racer {
+export interface RacerDto {
   id: string;
   name: string;
   moves: [number, number][];
@@ -37,12 +34,22 @@ export interface Racer {
   lateralSteps: number;
   forwardSteps: number;
   backwardSteps: number;
-  deck: any[];
-  hand: [string, string][];
+  deck: DeckDto;
+  hand: DeckDto;
+  discard: DeckDto;
 }
 
-export interface PotentialMove {
+export interface RacerActionDto {
   racerId: string;
   cursor: [number, number];
-  cards?: any[];
+  cards?: DeckDto;
 }
+
+export type CardDto = [string, string];
+
+export type Stack<T> = Array<T>;
+export type DeckDto = Stack<CardDto>;
+type InventoryId = string;
+export type InventoryItem = [InventoryId, PartId];
+
+export type InventoryDto = InventoryItem[];

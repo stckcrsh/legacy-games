@@ -1,24 +1,12 @@
-import {
-  Card,
-  Racer,
-  cardLookup,
-  createPossibleVectors,
-} from '@vector-racer/lib';
-import {
-  Observable,
-  Subject,
-  merge,
-  scan,
-  shareReplay,
-  startWith,
-  tap,
-} from 'rxjs';
+import { merge, Observable, scan, shareReplay, startWith, Subject, tap } from 'rxjs';
 import Vector from 'victor';
+
+import { cardLookup, createPossibleVectors, RacerDto } from '@vector-racer/lib';
 
 type InitAction = {
   type: 'init';
   payload: {
-    racer: Racer;
+    racer: RacerDto;
     possibleVectors: [Vector, Vector][];
   };
 };
@@ -31,7 +19,7 @@ type SelectCardAction = {
 type Actions = SelectCardAction | InitAction;
 
 export interface Player {
-  racer: Racer;
+  racer: RacerDto;
   possibleVectors: [Vector, Vector][];
   selectedCards: Record<string, boolean>;
 }
@@ -40,7 +28,7 @@ export class PlayerBLoc {
   private _state$: Observable<Player>;
   private _selectCard$ = new Subject<SelectCardAction>();
 
-  constructor(racer: Racer) {
+  constructor(racer: RacerDto) {
     const possibleVectors = createPossibleVectors(racer, []);
 
     const commands$: Observable<Actions> = merge(this._selectCard$).pipe(

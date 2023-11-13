@@ -14,16 +14,18 @@
 - [x] float grid
   - [x] rotating the neighbors to match the direction of travel
   - [/] Spreading out the neighbors based on stats
-  - [ ] adding new neighbors based on stats
+  - [/] adding new neighbors based on stats
 - [ ] Plan out car parts and what they do
-  - [ ] Car statistics
+  - [/] Car statistics
 - [ ] race track designer
 - [ ] multiple checkpoints for lap tracking
 - [ ] online
   - [x] Server
   - [/] basic user management
 - [ ] multiplayer
-- [ ] playing cards
+- [/] playing cards
+  - [/] deck management
+  - [ ] hand management
 - [ ] Track Effects
   - [ ] weather
     - [ ] rain
@@ -43,6 +45,7 @@
   - [ ] top speed
   - [ ] space race with planets
   - [ ] hill climb (move up but it progressively subtracts from your vector see how high you can get)
+  - [ ] Drag race narrow and long (doesnt work without aim drift)
 - [ ] Collectibles
   - [ ] Money
   - [ ] Photo ops
@@ -57,6 +60,8 @@
   - [ ] drafting
 - [ ] race prizes/loot boxes
 - [ ] AI racers
+- [/] Chassis
+- [/] Parts
 
 ## Tracking laps and finish line
 
@@ -132,7 +137,6 @@ variance on vector (%chance that it changes ) could be based on wheel degredatio
 wheel degredation could be used for pits
 
 weight - light cars increase the gap between neighbors heavy lowers
-cooling - reducing heat
 
 RPG classes
 
@@ -163,6 +167,50 @@ braking - backwards vector
 weight will affect each of these with some basic multiplier light weight will be higher than heavier vehicles
 heavier vehicles will have a higher top speed to account for this.
 
+### Nascar chasis (easy mode)
+These are the basic stats and wont be anything advanced yet
+
+Max Heat: 4
+Hand Size: 3
+
+Part slots
+ - Engine: V6/standard cards: 1 Cooldown, 1 Accelerate
+ - Front wheels: */standard cards: 2 Turn
+ - Back wheels: */standard cards: 1 Accelerate, 1 Turn
+ - Brake: 2 Brake
+ - Accesory: Suspension/standard cards: 1 Turn
+ - Accessory: Empty by default
+
+Base stats
+  - acceleration: MED
+  - lateral: MED
+  - brake: MED
+
+Weight: 150
+
+Base deck - 9 cards
+
+### Dragster Chasis
+Built for speed not for manueverability
+
+Max Heat: 6
+Hand Size: 6
+
+Part slots
+ - Engine: V12/standard cards: 3 Accelerate
+ - Front wheels: */standard cards: N/A
+ - Back wheels: */standard cards: 2 Accelerate
+ - Accesory: Big Ass Spoiler weight: -x 
+ - Accessory: Nothing
+
+Base stats
+  - acceleration: HEIGHEST
+  - lateral: LOW
+  - brake: LOWEST
+
+Weight: 200
+
+Base deck - 9 cards
 
 
 ## Sponsorships
@@ -232,3 +280,46 @@ what things do you pay heat for
 
 if you get 3 heat in your hand then you discard all non heat cards from your hand
 gaining heat should allow you to draw cards faster which has pros and cons
+
+
+## Creating a Game Object/Worlflow
+Creating a game needs these necessities
+- Map
+- Gametype
+- Weather
+- Number of Racers
+
+Once game is created then we wait for players to join and be ready
+
+```mermaid
+stateDiagram-v2
+    [*] --> WaitingForPlayers
+    WaitingForPlayers --> Preparation: All Ready
+    Preparation --> GameLoop: Preparation Complete
+    state GameLoop {
+        [*] --> WaitForPlayerActions
+        WaitForPlayerActions --> ResolvingActions: All Actions Submitted
+        ResolvingActions --> WaitForPlayerActions: Resolve Complete
+        ResolvingActions --> End: Game Over
+    }
+    End --> GameResolution
+    GameResolution -->[*]
+```
+
+### Waiting For Players
+This happens after the game is created and we are waiting for the players to create their loadout 
+and notify us that they are ready to race.
+
+### Preparation
+This is where the game gets setup initializing racers, the map, and the weather. Once this step is done then we go straight into the game loop.
+
+### Game Loop
+Here we are just going through the process of getting the players actions and resolving them. Once all the actions are resolved then we go back to getting the players actions.
+
+
+
+
+
+
+
+

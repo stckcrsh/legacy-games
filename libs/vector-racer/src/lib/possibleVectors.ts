@@ -1,12 +1,8 @@
 import Vector from 'victor';
 
-import { Racer } from './types';
-import {
-  VECTOR_GRID,
-  angleOfVectorsRadians,
-  rotateVector2d,
-} from './vector.utils';
 import { Card } from './cards';
+import { RacerDto } from './types';
+import { angleOfVectorsRadians, rotateVector2d, VECTOR_GRID } from './vector.utils';
 
 /**
  *
@@ -14,11 +10,10 @@ import { Card } from './cards';
  * @returns array of tuples [gridVector, possibleVector]
  */
 export function createPossibleVectors(
-  _racer: Racer,
+  _racer: RacerDto,
   cards: Card[]
 ): [Vector, Vector][] {
   const racer = cards.reduce((acc, card) => card.execute(acc), _racer);
-  console.log(racer);
 
   const { forwardScale, lateralScale, backwardScale } = racer;
 
